@@ -1,5 +1,5 @@
 {
-  "name": "memwatch-next",
+  "name": "memwatch-ng",
   "description": "Keep an eye on your memory usage, and discover and isolate leaks.",
   "version": "0.3.0",
   "author": "Lloyd Hilaiel (http://lloyd.io)",
@@ -28,6 +28,7 @@
     "should": "^8.3.1"
   },
   "contributors": [
+    "Shane Rowatt (",
     "Jed Parsons (@jedp)",
     "Jeff Haynie (@jhaynie)",
     "Justin Matthews (@jmatthewsr-ms)"
