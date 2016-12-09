@@ -59,6 +59,13 @@ The `info` object will look something like:
   reason: 'heap growth over 5 consecutive GCs (20s) - 11.67 mb/hr' }
 ```
 
+By default, leaks are defined as 5 consecutive calls to the garbage collector 
+that result in an increase of memory. To change the number of consecutive 
+increases of memory limit, call 
+
+```javascript
+memwatch.set_consecutive_growth_limit(10);
+```
 
 ### Heap Usage
 
