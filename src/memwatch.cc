@@ -20,6 +20,8 @@
 using namespace v8;
 using namespace node;
 
+static unsigned int s_consecutive_growth_limit = 5;
+
 Handle<Object> g_context;
 Nan::Callback *g_cb;
 
@@ -64,6 +66,14 @@ static struct
     // the number of consecutive compactions for which we've grown
     unsigned int consecutive_growth;
 } s_stats;
+
+NAN_METHOD(memwatch::set_consecutive_growth_limit) {
+	Nan::HandleScope scope;
+	if (info.Length() >= 1 && info[0]->IsNumber()) {
+		s_consecutive_growth_limit =  (unsigned int)(info[0]->Int32Value());
+	}
+	info.GetReturnValue().Set(Nan::Undefined());
+}
 
 static Local<Value> getLeakReport(size_t heapUsage)
 {
@@ -115,7 +125,7 @@ static void AsyncMemwatchAfter(uv_work_t* request) {
             s_stats.consecutive_growth++;
 
             // consecutive growth over 5 GCs suggests a leak
-            if (s_stats.consecutive_growth >= 5) {
+            if (s_stats.consecutive_growth >= s_consecutive_growth_limit) {
                 // reset to zero
                 s_stats.consecutive_growth = 0;
 

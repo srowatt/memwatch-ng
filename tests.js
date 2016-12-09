@@ -2,6 +2,8 @@ const
 should = require('should'),
 memwatch = require('./');
 
+memwatch.set_consecutive_growth_limit(10);
+
 describe('the library', function() {
   it('should export a couple functions', function(done) {
     should.exist(memwatch.gc);
@@ -9,6 +11,7 @@ describe('the library', function() {
     should.exist(memwatch.once);
     should.exist(memwatch.removeAllListeners);
     should.exist(memwatch.HeapDiff);
+    should.exist(memwatch.set_consecutive_growth_limit);
     done();
   });
 });
