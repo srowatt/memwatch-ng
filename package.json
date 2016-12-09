@@ -2,13 +2,13 @@
   "name": "memwatch-ng",
   "description": "Keep an eye on your memory usage, and discover and isolate leaks.",
   "version": "0.3.0",
-  "author": "Lloyd Hilaiel (http://lloyd.io)",
+  "author": "Shane Rowatt (http://www.shanerowatt.com)",
   "engines": {
     "node": ">= 0.8.0"
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/marcominetti/node-memwatch.git"
+    "url": "https://github.com/srowatt/memwatch-ng.git"
   },
   "main": "include.js",
   "licenses": [
@@ -17,7 +17,7 @@
     }
   ],
   "bugs": {
-    "url": "https://github.com/marcominetti/node-memwatch/issues"
+    "url": "https://github.com/srowatt/memwatch-ng/issues"
   },
   "scripts": {
     "install": "node-gyp rebuild",
@@ -28,7 +28,7 @@
     "should": "^8.3.1"
   },
   "contributors": [
-    "Shane Rowatt (",
+    "Shane Rowatt (@srowatt)",
     "Jed Parsons (@jedp)",
     "Jeff Haynie (@jhaynie)",
     "Justin Matthews (@jmatthewsr-ms)"
