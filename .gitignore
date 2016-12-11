@@ -1,4 +1,5 @@
 /build
 /node_modules
 *~
-node-memwatch.iml
+memwatch-ng.iml
+.idea

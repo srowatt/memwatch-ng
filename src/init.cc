@@ -17,6 +17,8 @@ extern "C" {
         Nan::SetMethod(target, "upon_gc", memwatch::upon_gc);
         Nan::SetMethod(target, "gc", memwatch::trigger_gc);
         Nan::SetMethod(target, "set_consecutive_growth_limit", memwatch::set_consecutive_growth_limit);
+        Nan::SetMethod(target, "set_recent_period", memwatch::set_recent_period);
+        Nan::SetMethod(target, "set_ancient_period", memwatch::set_ancient_period);
 
         v8::V8::AddGCEpilogueCallback(memwatch::after_gc);
     }

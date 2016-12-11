@@ -1,10 +1,11 @@
-`node-memwatch`: Leak Detection and Heap Diffing for Node.JS
+`memwatch-ng`: Leak Detection and Heap Diffing for Node.JS
 ============================================================
 
 [![Build Status](https://travis-ci.org/srowatt/memwatch-ng.svg?branch=master)](https://travis-ci.org/srowatt/memwatch-ng)
 
-`node-memwatch` is here to help you detect and find memory leaks in
-Node.JS code.  It provides:
+`memwatch-ng` is here to help you detect and find memory leaks in Node.JS code. `memwatch-ng` is based on the original `node-memwatch` project but adds some additional features to give you more control over how a leak is detected. 
+
+It provides:
 
 - A `leak` event, emitted when it appears your code is leaking memory.
 
@@ -14,6 +15,8 @@ Node.JS code.  It provides:
 - A `HeapDiff` class that lets you compare the state of your heap between
   two points in time, telling you what has been allocated, and what
   has been released.
+
+`memwatch-ng` has been tested on Node.js versions: `0.10`, `0.12`, `1.x`, `2.x`, `3.x`, `4.x`, `5.x`, `6.x` and `7.x`.  
 
 
 Installation
@@ -34,7 +37,7 @@ usage in Node.JS applications, but there is still a need for a
 platform-independent native module that requires no special
 instrumentation.  This module attempts to satisfy that need.
 
-To get started, import `node-memwatch` like so:
+To get started, import `memwatch-ng` like so:
 
 ```javascript
 var memwatch = require('memwatch-ng');
@@ -59,12 +62,26 @@ The `info` object will look something like:
   reason: 'heap growth over 5 consecutive GCs (20s) - 11.67 mb/hr' }
 ```
 
+### Leak Detection Settings
+
 By default, leaks are defined as 5 consecutive calls to the garbage collector 
 that result in an increase of memory. To change the number of consecutive 
 increases of memory limit, call 
 
 ```javascript
 memwatch.set_consecutive_growth_limit(10);
+```
+
+Two different algorithms are used to determine leak detections. One is used for initial startup when memory is being allocated for loading modules and the other is for when Node.js is in a standard running state where memory allocations are less frequent. The `set_recent_period` method is used to set how many garbage compactions are triggered on startup before switching from the first leak detection algorithm to the second. 
+
+```javascript
+memwatch.set_recent_period(10);
+```
+
+The algorithm to detect leaks uses a moving window over a period of garbage compactions with a decaying weight applied to older garbage compactions. To set the moving window period, call the `set_ancient_period` method to set the number of garbage compactions used in the moving window:
+
+```javascript
+memwatch.set_ancient_period(120);
 ```
 
 ### Heap Usage
@@ -164,4 +181,4 @@ Please see the Issues to share suggestions and contribute!
 License
 -------
 
-http://wtfpl.org
+http://wtfpl.net

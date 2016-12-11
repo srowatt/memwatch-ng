@@ -21,6 +21,8 @@ using namespace v8;
 using namespace node;
 
 static unsigned int s_consecutive_growth_limit = 5;
+static unsigned int s_recent_period = 10;
+static unsigned int s_ancient_period = 120;
 
 Handle<Object> g_context;
 Nan::Callback *g_cb;
@@ -31,9 +33,6 @@ struct Baton {
     GCType type;
     GCCallbackFlags flags;
 };
-
-static const unsigned int RECENT_PERIOD = 10;
-static const unsigned int ANCIENT_PERIOD = 120;
 
 static struct
 {
@@ -46,11 +45,11 @@ static struct
     unsigned int last_base;
 
     // the estimated "base memory" usage of the javascript heap
-    // over the RECENT_PERIOD number of GC runs
+    // over the s_recent_period number of GC runs
     unsigned int base_recent;
 
     // the estimated "base memory" usage of the javascript heap
-    // over the ANCIENT_PERIOD number of GC runs
+    // over the s_ancient_period number of GC runs
     unsigned int base_ancient;
 
     // the most extreme values we've seen for base heap size
@@ -75,6 +74,22 @@ NAN_METHOD(memwatch::set_consecutive_growth_limit) {
 	info.GetReturnValue().Set(Nan::Undefined());
 }
 
+NAN_METHOD(memwatch::set_recent_period) {
+    Nan::HandleScope scope;
+    if (info.Length() >= 1 && info[0]->IsNumber()) {
+        s_recent_period =  (unsigned int)(info[0]->Int32Value());
+    }
+    info.GetReturnValue().Set(Nan::Undefined());
+}
+
+NAN_METHOD(memwatch::set_ancient_period) {
+    Nan::HandleScope scope;
+    if (info.Length() >= 1 && info[0]->IsNumber()) {
+        s_ancient_period =  (unsigned int)(info[0]->Int32Value());
+    }
+    info.GetReturnValue().Set(Nan::Undefined());
+}
+
 static Local<Value> getLeakReport(size_t heapUsage)
 {
     Nan::EscapableHandleScope scope;
@@ -89,7 +104,9 @@ static Local<Value> getLeakReport(size_t heapUsage)
     leakReport->Set(Nan::New("growth").ToLocalChecked(), Nan::New<v8::Number>(growth));
 
     std::stringstream ss;
-    ss << "heap growth over 5 consecutive GCs ("
+    ss << "heap growth over "
+       << s_consecutive_growth_limit
+       << " consecutive GCs ("
        << mw_util::niceDelta(delta) << ") - "
        << mw_util::niceSize(growth / ((double) delta / (60.0 * 60.0))) << "/hr";
 
@@ -149,22 +166,22 @@ static void AsyncMemwatchAfter(uv_work_t* request) {
 
         // the first ten compactions we'll use a different algorithm to
         // dampen out wider memory fluctuation at startup
-        if (s_stats.gc_compact < RECENT_PERIOD) {
-            double decay = pow(s_stats.gc_compact / RECENT_PERIOD, 2.5);
+        if (s_stats.gc_compact < s_recent_period) {
+            double decay = pow(s_stats.gc_compact / s_recent_period, 2.5);
             decay *= s_stats.gc_compact;
             if (ISINF(decay) || ISNAN(decay)) decay = 0;
             s_stats.base_recent = ((s_stats.base_recent * decay) +
                                    s_stats.last_base) / (decay + 1);
 
-            decay = pow(s_stats.gc_compact / RECENT_PERIOD, 2.4);
+            decay = pow(s_stats.gc_compact / s_recent_period, 2.4);
             decay *= s_stats.gc_compact;
             s_stats.base_ancient = ((s_stats.base_ancient * decay) +
                                     s_stats.last_base) /  (1 + decay);
 
         } else {
-            s_stats.base_recent = ((s_stats.base_recent * (RECENT_PERIOD - 1)) +
-                                   s_stats.last_base) / RECENT_PERIOD;
-            double decay = FMIN(ANCIENT_PERIOD, s_stats.gc_compact);
+            s_stats.base_recent = ((s_stats.base_recent * (s_recent_period - 1)) +
+                                   s_stats.last_base) / s_recent_period;
+            double decay = FMIN(s_ancient_period, s_stats.gc_compact);
             s_stats.base_ancient = ((s_stats.base_ancient * (decay - 1)) +
                                     s_stats.last_base) / decay;
         }
