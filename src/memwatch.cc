@@ -23,6 +23,7 @@ using namespace node;
 static unsigned int s_consecutive_growth_limit = 5;
 static unsigned int s_recent_period = 10;
 static unsigned int s_ancient_period = 120;
+static unsigned int s_extremes_period = 3;
 
 Handle<Object> g_context;
 Nan::Callback *g_cb;
@@ -74,12 +75,22 @@ NAN_METHOD(memwatch::set_consecutive_growth_limit) {
 	info.GetReturnValue().Set(Nan::Undefined());
 }
 
+NAN_METHOD(memwatch::get_consecutive_growth_limit) {
+	Nan::HandleScope scope;
+	info.GetReturnValue().Set(Nan::New<v8::Number>(s_consecutive_growth_limit));
+}
+
 NAN_METHOD(memwatch::set_recent_period) {
     Nan::HandleScope scope;
     if (info.Length() >= 1 && info[0]->IsNumber()) {
         s_recent_period =  (unsigned int)(info[0]->Int32Value());
     }
     info.GetReturnValue().Set(Nan::Undefined());
+}
+
+NAN_METHOD(memwatch::get_recent_period) {
+	Nan::HandleScope scope;
+	info.GetReturnValue().Set(Nan::New<v8::Number>(s_recent_period));
 }
 
 NAN_METHOD(memwatch::set_ancient_period) {
@@ -89,6 +100,26 @@ NAN_METHOD(memwatch::set_ancient_period) {
     }
     info.GetReturnValue().Set(Nan::Undefined());
 }
+
+NAN_METHOD(memwatch::get_ancient_period) {
+	Nan::HandleScope scope;
+	info.GetReturnValue().Set(Nan::New<v8::Number>(s_ancient_period));
+}
+
+
+NAN_METHOD(memwatch::set_extremes_period) {
+    Nan::HandleScope scope;
+    if (info.Length() >= 1 && info[0]->IsNumber()) {
+        s_extremes_period =  (unsigned int)(info[0]->Int32Value());
+    }
+    info.GetReturnValue().Set(Nan::Undefined());
+}
+
+NAN_METHOD(memwatch::get_extremes_period) {
+	Nan::HandleScope scope;
+	info.GetReturnValue().Set(Nan::New<v8::Number>(s_extremes_period));
+}
+
 
 static Local<Value> getLeakReport(size_t heapUsage)
 {
@@ -141,7 +172,7 @@ static void AsyncMemwatchAfter(uv_work_t* request) {
 
             s_stats.consecutive_growth++;
 
-            // consecutive growth over 5 GCs suggests a leak
+            // consecutive growth over 's_consecutive_growth_limit' number of GCs suggests a leak
             if (s_stats.consecutive_growth >= s_consecutive_growth_limit) {
                 // reset to zero
                 s_stats.consecutive_growth = 0;
@@ -164,7 +195,7 @@ static void AsyncMemwatchAfter(uv_work_t* request) {
         // update compaction count
         s_stats.gc_compact++;
 
-        // the first ten compactions we'll use a different algorithm to
+        // the first 's_recent_period' number of compactions we'll use a different algorithm to
         // dampen out wider memory fluctuation at startup
         if (s_stats.gc_compact < s_recent_period) {
             double decay = pow(s_stats.gc_compact / s_recent_period, 2.5);
@@ -186,8 +217,8 @@ static void AsyncMemwatchAfter(uv_work_t* request) {
                                     s_stats.last_base) / decay;
         }
 
-        // only record min/max after 3 gcs to let initial instability settle
-        if (s_stats.gc_compact >= 3) {
+        // only record min/max after 's_extremes_period' number of gcs to let initial instability settle
+        if (s_stats.gc_compact >= s_extremes_period) {
             if (!s_stats.base_min || s_stats.base_min > s_stats.last_base) {
                 s_stats.base_min = s_stats.last_base;
             }

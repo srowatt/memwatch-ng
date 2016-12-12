@@ -72,16 +72,34 @@ increases of memory limit, call
 memwatch.set_consecutive_growth_limit(10);
 ```
 
+To retrieve the current growth limit setting, call:
+
+```javascript
+var growthLimit = memwatch.get_consecutive_growth_limit();
+```
+
 Two different algorithms are used to determine leak detections. One is used for initial startup when memory is being allocated for loading modules and the other is for when Node.js is in a standard running state where memory allocations are less frequent. The `set_recent_period` method is used to set how many garbage compactions are triggered on startup before switching from the first leak detection algorithm to the second. 
 
 ```javascript
 memwatch.set_recent_period(10);
 ```
 
+To retrieve the current recent period setting, call:
+
+```javascript
+var recentPeriod = memwatch.get_recent_period();
+```
+
 The algorithm to detect leaks uses a moving window over a period of garbage compactions with a decaying weight applied to older garbage compactions. To set the moving window period, call the `set_ancient_period` method to set the number of garbage compactions used in the moving window:
 
 ```javascript
 memwatch.set_ancient_period(120);
+```
+
+To retrieve the current ancient period setting, call:
+
+```javascript
+var ancientPeriod = memwatch.get_ancient_period();
 ```
 
 ### Heap Usage
@@ -123,6 +141,13 @@ heavy load, it may defer this action for some time.  To aid in
 speedier debugging, `memwatch` provides a `gc()` method to force V8 to
 do a full GC and heap compaction.
 
+The `min` and `max` stats report the most extreme values we've seen for base 
+heap size and are only recorded after the first 3 GC's, by default. This
+can be changed by calling:
+
+```javascript
+memwatch.set_extremes_period(10);
+```
 
 ### Heap Diffing
 

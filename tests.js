@@ -3,6 +3,9 @@ should = require('should'),
 memwatch = require('./');
 
 memwatch.set_consecutive_growth_limit(10);
+memwatch.set_recent_period(10);
+memwatch.set_ancient_period(120);
+memwatch.set_extremes_period(3);
 
 describe('the library', function() {
   it('should export a couple functions', function(done) {
