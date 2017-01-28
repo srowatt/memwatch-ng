@@ -10,24 +10,23 @@
 #include <node.h>
 #include <nan.h>
 
-namespace heapdiff
-{
-    class HeapDiff : public Nan::ObjectWrap
-    {
-      public:
-        static void Initialize ( v8::Handle<v8::Object> target );
+namespace heapdiff {
+    class HeapDiff : public Nan::ObjectWrap {
+        public:
+            static void Initialize ( v8::Handle<v8::Object> target );
 
-        static NAN_METHOD(New);
-        static NAN_METHOD(End);
-        static bool InProgress();
+            static NAN_METHOD(New);
+            static NAN_METHOD(End);
+            static bool InProgress();
 
-      protected:
-        HeapDiff();
-        ~HeapDiff();
-      private:
-        const v8::HeapSnapshot * before;
-        const v8::HeapSnapshot * after;
-        bool ended;
+        protected:
+            HeapDiff();
+            ~HeapDiff();
+
+        private:
+            const v8::HeapSnapshot * before;
+            const v8::HeapSnapshot * after;
+            bool ended;
     };
 };
 

@@ -1,7 +1,3 @@
-/*
- * 2012|lloyd|http://wtfpl.org
- */
-
 #include "platformcompat.hh"
 #include "memwatch.hh"
 #include "heapdiff.hh"
@@ -99,8 +95,8 @@ static Local<Value> getLeakReport(size_t heapUsage)
     int delta = now - s_stats.leak_time_start;
 
     Local<Object> leakReport = Nan::New<v8::Object>();
-    //leakReport->Set(Nan::New("start").ToLocalChecked(), NODE_UNIXTIME_V8(s_stats.leak_time_start));
-    //leakReport->Set(Nan::New("end").ToLocalChecked(), NODE_UNIXTIME_V8(now));
+    leakReport->Set(Nan::New("start").ToLocalChecked(), NODE_UNIXTIME_V8(s_stats.leak_time_start));
+    leakReport->Set(Nan::New("end").ToLocalChecked(), NODE_UNIXTIME_V8(now));
     leakReport->Set(Nan::New("growth").ToLocalChecked(), Nan::New<v8::Number>(growth));
 
     std::stringstream ss;

@@ -1,7 +1,3 @@
-/*
- * 2012|lloyd|do what the fuck you want to
- */
-
 #include <v8.h>
 #include <node.h>
 
@@ -9,8 +5,7 @@
 #include "memwatch.hh"
 
 extern "C" {
-    void init (v8::Handle<v8::Object> target)
-    {
+    void init (v8::Handle<v8::Object> target) {
         Nan::HandleScope scope;
         heapdiff::HeapDiff::Initialize(target);
 

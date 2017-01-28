@@ -1,6 +1,3 @@
-/*
- * 2012|lloyd|http://wtfpl.org
- */
 #include <map>
 #include <string>
 #include <set>
@@ -19,18 +16,14 @@ using namespace std;
 static bool s_inProgress = false;
 static time_t s_startTime;
 
-bool heapdiff::HeapDiff::InProgress()
-{
+bool heapdiff::HeapDiff::InProgress() {
     return s_inProgress;
 }
 
-heapdiff::HeapDiff::HeapDiff() : ObjectWrap(), before(NULL), after(NULL),
-                                 ended(false)
-{
+heapdiff::HeapDiff::HeapDiff() : ObjectWrap(), before(NULL), after(NULL), ended(false) {
 }
 
-heapdiff::HeapDiff::~HeapDiff()
-{
+heapdiff::HeapDiff::~HeapDiff() {
     if (before) {
         ((HeapSnapshot *) before)->Delete();
         before = NULL;
@@ -42,9 +35,7 @@ heapdiff::HeapDiff::~HeapDiff()
     }
 }
 
-void
-heapdiff::HeapDiff::Initialize ( v8::Handle<v8::Object> target )
-{
+void heapdiff::HeapDiff::Initialize ( v8::Handle<v8::Object> target ) {
     Nan::HandleScope scope;
 
     v8::Local<v8::FunctionTemplate> t = Nan::New<v8::FunctionTemplate>(New);
@@ -56,8 +47,7 @@ heapdiff::HeapDiff::Initialize ( v8::Handle<v8::Object> target )
     target->Set(Nan::New<v8::String>("HeapDiff").ToLocalChecked(), t->GetFunction());
 }
 
-NAN_METHOD(heapdiff::HeapDiff::New)
-{
+NAN_METHOD(heapdiff::HeapDiff::New) {
     // Don't blow up when the caller says "new require('memwatch').HeapDiff()"
     // issue #30
     // stolen from: https://github.com/kkaefer/node-cpp-modules/commit/bd9432026affafd8450ecfd9b49b7dc647b6d348
@@ -90,15 +80,12 @@ NAN_METHOD(heapdiff::HeapDiff::New)
     info.GetReturnValue().Set(info.This());
 }
 
-static string handleToStr(const Handle<Value> & str)
-{
+static string handleToStr(const Handle<Value> & str) {
 	String::Utf8Value utfString(str->ToString());
 	return *utfString;
 }
 
-static void
-buildIDSet(set<uint64_t> * seen, const HeapGraphNode* cur, int & s)
-{
+static void buildIDSet(set<uint64_t> * seen, const HeapGraphNode* cur, int & s) {
     Nan::HandleScope scope;
 
     // cycle detection
@@ -129,46 +116,45 @@ typedef set<uint64_t> idset;
 
 // why doesn't STL work?
 // XXX: improve this algorithm
-void setDiff(idset a, idset b, vector<uint64_t> &c)
-{
+void setDiff(idset a, idset b, vector<uint64_t> &c) {
     for (idset::iterator i = a.begin(); i != a.end(); i++) {
-        if (b.find(*i) == b.end()) c.push_back(*i);
+        if (b.find(*i) == b.end()) {
+            c.push_back(*i);
+        }
     }
 }
 
+class example {
+    public:
+        HeapGraphEdge::Type context;
+        HeapGraphNode::Type type;
+        std::string name;
+        std::string value;
+        std::string heap_value;
+        int self_size;
+        int retained_size;
+        int retainers;
 
-class example
-{
-public:
-    HeapGraphEdge::Type context;
-    HeapGraphNode::Type type;
-    std::string name;
-    std::string value;
-    std::string heap_value;
-    int self_size;
-    int retained_size;
-    int retainers;
-
-    example() : context(HeapGraphEdge::kHidden),
-                type(HeapGraphNode::kHidden),
-                self_size(0), retained_size(0), retainers(0) { };
+        example() : context(HeapGraphEdge::kHidden),
+                    type(HeapGraphNode::kHidden),
+                    self_size(0), retained_size(0), retainers(0) {
+        };
 };
 
-class change
-{
-public:
-    long int size;
-    long int added;
-    long int released;
-    std::vector<example> examples;
+class change {
+    public:
+        long int size;
+        long int added;
+        long int released;
+        std::vector<example> examples;
 
-    change() : size(0), added(0), released(0) { }
+        change() : size(0), added(0), released(0) {
+        }
 };
 
 typedef std::map<std::string, change>changeset;
 
-static void manageChange(changeset & changes, const HeapGraphNode * node, bool added)
-{
+static void manageChange(changeset & changes, const HeapGraphNode * node, bool added) {
     std::string type;
 
     switch(node->GetType()) {
@@ -220,8 +206,7 @@ static void manageChange(changeset & changes, const HeapGraphNode * node, bool a
     return;
 }
 
-static Handle<Value> changesetToObject(changeset & changes)
-{
+static Handle<Value> changesetToObject(changeset & changes) {
     Nan::EscapableHandleScope scope;
     Local<Array> a = Nan::New<v8::Array>();
 
@@ -239,9 +224,7 @@ static Handle<Value> changesetToObject(changeset & changes)
 }
 
 
-static v8::Local<Value>
-compare(const v8::HeapSnapshot * before, const v8::HeapSnapshot * after)
-{
+static v8::Local<Value> compare(const v8::HeapSnapshot * before, const v8::HeapSnapshot * after) {
     Nan::EscapableHandleScope scope;
     int s, diffBytes;
 
@@ -309,8 +292,7 @@ compare(const v8::HeapSnapshot * before, const v8::HeapSnapshot * after)
     return scope.Escape(o);
 }
 
-NAN_METHOD(heapdiff::HeapDiff::End)
-{
+NAN_METHOD(heapdiff::HeapDiff::End) {
     // take another snapshot and compare them
     Nan::HandleScope scope;
 

@@ -87,7 +87,7 @@ memwatch.set_ancient_period(120);
 ### Heap Usage
 
 The best way to evaluate your memory footprint is to look at heap
-usage right aver V8 performs garbage collection.  `memwatch` does
+usage right after V8 performs garbage collection.  `memwatch` does
 exactly this - it checks heap usage only after GC to give you a stable
 baseline of your actual memory usage.
 

@@ -9,9 +9,7 @@
 
 #include <stdlib.h> // abs()
 
-std::string
-mw_util::niceSize(int bytes) 
-{
+std::string mw_util::niceSize(int bytes) {
     std::stringstream ss;
     
     if (abs(bytes) > 1024 * 1024) {
@@ -25,9 +23,7 @@ mw_util::niceSize(int bytes)
     return ss.str();
 }
 
-std::string
-mw_util::niceDelta(int seconds) 
-{
+std::string mw_util::niceDelta(int seconds) {
     std::stringstream ss;
 
     if (seconds > (60*60)) {
